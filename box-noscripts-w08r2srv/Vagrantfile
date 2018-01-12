@@ -1,0 +1,25 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.require_plugin "vagrant-reload"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "universalvishwa/windows-2008-r2-standard-x64"
+
+  config.vm.hostname = "win08r2srv-test"
+
+  config.winrm.transport = :plaintext
+  config.winrm.basic_auth_only = true
+  config.vm.communicator = "winrm"
+
+  config.vm.network :private_network, ip: "192.168.38.250", gateway: "192.168.38.1"
+  config.vm.provision "shell", path: "scripts/fix-second-network.ps1", privileged: false, args: "-ip 192.168.38.250 -dns 192.168.38.2"
+
+   config.vm.provider "virtualbox" do |vb, override|
+      vb.customize ["modifyvm", :id, "--memory", 1024]
+      vb.customize ["modifyvm", :id, "--cpus", 1]
+      vb.customize ["modifyvm", :id, "--vram", "32"]
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+    end
+
+end

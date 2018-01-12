@@ -1,0 +1,202 @@
+The following is a list of unattend parameters for promotion (default values are enclosed in <>):
+
+
+
+
+/AllowDomainControllerReinstall:{Yes | <No> | NoAndNoPromptEither}
+
+Specifies whether to continue installing this domain controller despite that a domain controller account with the same name is detected. Specify Yes only if you are sure that the account is no longer in use.
+
+
+/AllowDomainReinstall:{Yes | <No> | NoAndNoPromptEither}
+
+Specifies whether an existing domain is recreated.
+
+
+/ApplicationPartitionsToReplicate:""
+
+Specifies application partitions to be replicated in the format of "partition1" "partition2". If * is specified, all application partitions will be replicated.
+
+
+/AutoConfigDNS:{Yes | No} default will be automatically computed based on the environment
+
+Specifies whether Domain Name System (DNS) Server service should be installed.
+
+
+/ChildName:"child_domain_name"
+
+Specifies the single-label DNS name of the child domain.
+
+
+/ConfirmGc:{Yes | No}
+
+Specifies whether you want the domain controller to be a global catalog server.
+
+
+/CreateDNSDelegation:{Yes | No} default will be automatically computed based on the environment
+
+Specifies whether a DNS delegation for this domain should be created in the parent zone.
+
+
+/CriticalReplicationOnly:{Yes | <No>}
+
+Specifies whether the promotion operation performs only critical replication before reboot, and then continues, skipping the non-critical (and potentially lengthy) portion of replication. The non-critical replication will happen after the role installation has finished and the computer reboots.
+
+
+/DatabasePath:"path_to_database_files" default is %SYSTEMROOT%\NTDS
+
+Specifies the fully qualified, non-UNC path to a directory on a fixed disk of the local computer that contains the domain database. For example, C:\Windows\NTDS.
+
+
+/DelegatedAdmin:"name of user or group"
+
+Specifies the name of user or group that will install and administer the read-only domain controller.
+
+
+/DNSDelegationPassword:{"password" | *}
+
+Specifies the password for the user name (account credentials) to use for creating or removing DNS delegation. Specify * to prompt the user to enter credentials.
+
+
+/DNSDelegationUserName:"user_name"
+
+Specifies the user name (account credentials) used for creating or removing DNS delegation. If no value is specified, the credentials used for the domain controller installation or removal are used.
+
+
+/DNSOnNetwork:{<Yes> | No}
+
+Specifies whether DNS service is available on the network. This is used only when the network adapter for this computer is not configured with the name of a DNS server for name resolution. Specifying 'No' indicates that DNS server will be installed on this computer for name resolution. Otherwise, the network adapter must be configured with a DNS server name first.
+
+
+/DomainLevel:{0|2|3|4}
+
+The domain functional level cannot be lower than the forest functional level. Default will be automatically computed and set to the existing forest functional level or the value set for /ForestLevel
+
+Specifies the domain functional level when creating a new domain. A value of 0 specifies Windows 2000. A value of 2 specifies Windows Server 2003. A value of 3 specifies Windows Server 2008. A value of 4 specifies Windows Server 2008 R2.
+
+
+/DomainNetBiosName:"domain_NetBIOS_name"
+
+Assigns a network basic input/output system (NetBIOS) name to the new domain.
+
+
+/ForestLevel:{0|<2>|3|4}
+
+The default forest functional level when creating a new forest is Windows Server 2003 (2); do not use this switch when promoting a domain controller in an existing forest
+
+Specifies the forest functional level when creating a new forest. A value of 0 specifies Windows 2000. A value of 2 specifies Windows Server 2003. A value of 3 specifies Windows Server 2008. A value of 4 specifies Windows Server 2008 R2.
+
+
+/InstallDNS:{Yes | No} default will be automatically computed based on the environment
+
+Specifies whether Domain Name System (DNS) should be installed for the domain. This switch replaces /AutoConfigDNS.
+
+
+/LogPath:"path_to_log_files" default is %SYSTEMROOT%\NTDS
+
+Specifies the fully qualified, non-UNC path to a directory on a fixed disk of the local computer that contains the domain log files. For example, C:\Windows\Logs.
+
+
+/NewDomain:{Tree | Child | <Forest>}
+
+Indicates the type of domain that you want to create: a new forest, a new domain tree in an existing forest, or a child of an existing domain.
+
+
+/NewDomainDNSName:"DNS_name_of_domain"
+
+Specifies the fully qualified domain name for the new domain.
+
+
+/ParentDomainDNSName:"DNS_name_of_domain"
+
+Specifies the fully qualified domain name of an existing parent domain when installing a child domain.
+
+
+/Password:{"password" | *}
+
+Specifies the password corresponding to the user name (account credentials) used for the operation. Specify * to prompt the user to enter credentials.
+
+
+/PasswordReplicationAllowed:{"security_principal" | None}
+
+Specifies the names of user, group, and computer accounts whose passwords can be replicated to this RODC. Specify "None" if you want to keep the value empty. By default, only the Allowed RODC Password Replication Group is allowed, and it is originally created empty.
+
+
+/PasswordReplicationDenied:{"security_principal" | None}
+
+Specifies the names of users, groups, and computer accounts whose passwords are not to be replicated to this RODC. Specify "None" if you do not want to deny the replication of credentials of any users or computers. By default, Administrators, Server Operators, Backup Operators, Account Operators, and the Denied RODC Password Replication Group are denied. By default, the Denied RODC Password Replication Group includes Cert Publishers, Domain Admins, Enterprise Admins, Enterprise Domain Controllers, Enterprise Read-Only Domain Controllers, Group Policy Creator Owners, the krbtgt account, and Schema Admins.
+
+
+/RebootOnCompletion:{<Yes> | No}
+
+Specifies whether to restart the computer upon completion, regardless of success.
+
+
+/RebootOnSuccess:{<Yes> | No | NoAndNoPromptEither}
+
+Specifies whether to restart the computer upon successful completion.
+
+
+/ReplicaDomainDNSName:"DNS_name_of_domain"
+
+Specifies the fully qualified domain name of the domain in which you want to promote an additional domain controller.
+
+
+/ReplicaOrNewDomain:{<Replica> | ReadOnlyReplica | Domain}
+
+Specifies whether to install an additional domain controller (writable or RODC), or to create a new domain.
+
+
+/ReplicationSourceDC:"DNS_name_of_DC"
+
+Indicates the full qualified domain name of the partner domain controller from which you replicate the domain information.
+
+
+/ReplicationSourcePath:"replication_source_path"
+
+Indicates the location of the installation media that will be used to install a new domain controller.
+
+
+/SafeModeAdminPassword:"password" default is empty password (it is required that you do not leave this value blank)
+
+Supplies the password for the administrator account when starting the computer in safe mode or a variant of safe mode, such as directory service restore mode.
+
+
+/SiteName:"site_name"
+
+The default value depends on the type of installation. For a new forest, the default is Default-First-Site-Name. For all other installations, the default is the site that is associated with the subnet that includes the IP address of this server. If no such site exists, the default is the site of the replication source domain controller.
+
+Specifies the name of an existing site where you can place the new domain controller.
+
+
+/SkipAutoConfigDns
+
+This switch is for expert users who want to skip automatic configuration of DNS, including creation of zones and configuration of client settings, forwarders, and root hints. The switch is only in effect if the DNS Server service is already installed on this server. If you specify this switch, ensure that zones are created and properly configured before you install Active Directory Domain Services (AD DS); otherwise, this domain controller will not operate correctly. If the DNS Server service is not installed on this server, this switch is ignored.
+
+
+/Syskey:{<none> | system key}
+
+Specifies the system key for the media from which you replicate the data.
+
+
+/SysVolPath:"path_to_database_file" default is %SYSTEMROOT%\sysvol
+
+Specifies the fully qualified, non-UNC path to a directory on a fixed disk of the local computer. For example, C:\Windows\SYSVOL.
+
+
+/TransferIMRoleIfNecessary:{Yes | <No>}
+
+Specifies whether to transfer the infrastructure master (IM) role to this DC, in case it is currently hosted on a global catalog (GC) server, and you do not plan to make this DC a GC. Choose Yes to transfer the IM role to this DC in case this is needed; in that case, make sure to specify "/ConfirmGC:No". Choose No if you want the IM role to remain where it currently is.
+
+
+/UserDomain:"domain_name"
+
+Specifies the domain name for the user name (account credentials) used for the operation. It also helps to specify the forest where you plan to install the domain controller or create an RODC account. If no value is specified, the domain of the computer will be used.
+
+
+/UserName:"user_name"
+
+Specifies the user name (account credentials) used for the operation. If no value is specified, the credentials of the current user are used for the operation.
+
+
+Press any key to quit ...

@@ -1,0 +1,62 @@
+
+
+Command line parameters include:
+
+
+
+/unattend[:filename]
+
+     Used to specify the unattend operation mode or supply an unattended install script file.
+
+
+
+/adv
+
+     Enables advanced user options.
+
+
+
+/uninstallBinaries
+
+     Used to uninstall Active Directory Domain Services binaries.
+
+
+
+/?[:{Promotion | CreateDcAccount | UseExistingAccount | Demotion}]
+
+     /?:Promotion, /?:CreateDCAccount, /?:UseExistingAccount, and /?:Demotion
+
+will display unattend parameters applicable to the specified task. /CreateDCAccount and /UseExistingAccount:Attach are mutually exclusive.
+
+
+
+/CreateDCAccount
+
+     Creates an RODC account.
+
+
+
+/UseExistingAccount:Attach
+
+     Attaches the server to an RODC account.
+
+
+
+/forceRemoval
+
+     Forcefully uninstalls Active Directory Domain Services on this domain controller. The account for the domain controller will not be deleted in the directory, and changes that have occurred on this domain controller since it last replicated with a partner will be lost.
+
+
+
+/?
+
+     Will display this help.
+
+
+
+Unattend parameters can also be specified on the command-line. For example:
+
+
+
+   dcpromo.exe /ReplicaOrNewDomain:Replica
+Press any key to quit ...
