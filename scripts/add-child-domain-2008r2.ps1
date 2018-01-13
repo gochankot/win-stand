@@ -1,7 +1,3 @@
-param ([String] $ip)
-
-$subnet = $ip -replace "\.\d+$", ""
-
 if ((gwmi win32_computersystem).partofdomain -eq $false) {
 
   Write-Host 'Installing RSAT tools'
@@ -21,32 +17,29 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
   $adminUser = [ADSI] "WinNT://$computerName/Administrator,User"
   $adminUser.SetPassword($adminPassword)
 
-  $PlainPassword = "vagrant" # "P@ssw0rd"
+  $PlainPassword = "P@ssw0rd"
   $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force
 
-  # AD Replica Windows Server 2012 R2
-   dcpromo /unattend `
+  # AD Child add DOMAIN.ALT Windows Server 2012 R2 DomainLevel 2008 R2
+  dcpromo /unattend `
     /SafeModeAdminPassword:$SecurePassword `
-    /CreateDnsDelegation:No `
+    /CreateDnsDelegation:Yes `
+    /DNSDelegationUserName:"Administrator" `
+    /DNSDelegationPassword:"vagrant" `
+    /CreateDnsDelegation:Yes `
     /DNSOnNetwork:No `
-    /NewDomain:Tree `
-    /UserName:"vagrant" `
+    /NewDomain:Child `
+    /UserName:"Administrator" `
     /Password:"vagrant" `
-    /UserDomain:"DOMAIN" `
-    /ReplicaOrNewDomain:Replica `
-    /ReplicaDomainDNSName:"domain.alt" `
+    /ChildName:"child.domain.alt" `
+    /DomainNetBiosName:"CHILD" `
+    /ReplicaOrNewDomain:Domain `
+    /DomainLevel:4 `
+    /CreateDnsDelegation:Yes `
     /ConfirmGC:Yes `
-    /ParentDomainDNSName:"domain.alt" `
     /InstallDns:Yes `
     /DatabasePath:"C:\Windows\NTDS" `
     /LogPath:"C:\Windows\NTDS" `
     /SysvolPath:"C:\Windows\SYSVOL" `
-    /RebootOnCompletion:No
-
-  $newDNSServers = "8.8.8.8", "8.8.4.4"
-  $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -And ($_.IPAddress).StartsWith($subnet) }
-  if ($adapters) {
-    Write-Host Setting DNS
-    $adapters | ForEach-Object {$_.SetDNSServerSearchOrder($newDNSServers)}
-  }
+    /RebootOnCompletion:Yes
 }

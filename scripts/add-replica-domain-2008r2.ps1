@@ -20,19 +20,22 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
   $PlainPassword = "P@ssw0rd"
   $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force
 
-  # AD Forest Windows Server 2012 R2 DomainLevel/ForestLevel 2008/2008
+  # AD Replica Windows Server 2012 R2
   dcpromo /unattend `
     /SafeModeAdminPassword:$SecurePassword `
     /CreateDnsDelegation:No `
-    /NewDomain:forest `
-    /DomainLevel:4 `
-    /ForestLevel:4 `
-    /NewDomainDNSName:"domain.alt" `
-    /DomainNetbiosName:"DOMAIN" `
-    /ReplicaOrNewDomain:"domain" `
+    /DNSOnNetwork:No `
+    /NewDomain:Tree `
+    /UserName:"Administrator" `
+    /Password:"vagrant" `
+    /UserDomain:"DOMAIN" `
+    /ReplicaOrNewDomain:Replica `
+    /ReplicaDomainDNSName:"domain.alt" `
+    /ConfirmGC:Yes `
+    /ParentDomainDNSName:"domain.alt" `
     /InstallDns:Yes `
     /DatabasePath:"C:\Windows\NTDS" `
     /LogPath:"C:\Windows\NTDS" `
     /SysvolPath:"C:\Windows\SYSVOL" `
-    /RebootOnCompletion:No
+    /RebootOnCompletion:Yes
 }
