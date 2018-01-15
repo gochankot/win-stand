@@ -26,16 +26,16 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
     /CreateDnsDelegation:Yes `
     /DNSDelegationUserName:"Administrator" `
     /DNSDelegationPassword:"vagrant" `
-    /CreateDnsDelegation:Yes `
     /DNSOnNetwork:No `
     /NewDomain:Child `
+    /ParentDomainDNSName:"domain.alt" `
     /UserName:"Administrator" `
     /Password:"vagrant" `
-    /ChildName:"child.domain.alt" `
+    /UserDomain:"DOMAIN" `
+    /ChildName:"child" `
     /DomainNetBiosName:"CHILD" `
     /ReplicaOrNewDomain:Domain `
     /DomainLevel:4 `
-    /CreateDnsDelegation:Yes `
     /ConfirmGC:Yes `
     /InstallDns:Yes `
     /DatabasePath:"C:\Windows\NTDS" `

@@ -30,17 +30,12 @@ Vagrant.configure("2") do |config|
   #    after the domain controller is installed.
   #    see https://groups.google.com/forum/#!topic/vagrant-up/sZantuCM0q4
 
-  #config.winrm.transport = :plaintext
-  #config.winrm.basic_auth_only = true
-
-  #config.vm.communicator = "winrm"
+  config.winrm.transport = :plaintext
+  config.winrm.basic_auth_only = true
+  config.vm.communicator = "winrm"
 
   #AD DC Forest
   config.vm.define "dc" do |cfg|
-    cfg.winrm.transport = :plaintext
-    cfg.winrm.basic_auth_only = true
-    cfg.vm.communicator = "winrm"
-
     cfg.vm.box = basebox
     cfg.vm.hostname = basename + "-dc3"
 
@@ -48,23 +43,21 @@ Vagrant.configure("2") do |config|
       vb.customize ["modifyvm", :id, "--memory", 1024]
       vb.customize ["modifyvm", :id, "--cpus", 1]
       vb.customize ["modifyvm", :id, "--vram", "32"]
+      vb.name = cfg.vm.hostname
     end
 
-    cfg.vm.network :forwarded_port, guest: 5985, host: 59831, id: "winrm", auto_correct: true
+    cfg.vm.network :forwarded_port, guest: 5985, host: 59531, id: "winrm", auto_correct: true
+    cfg.vm.network :forwarded_port, guest: 5986, host: 59631, id: "winrm", auto_correct: true
     cfg.vm.network :forwarded_port, guest: 22, host: 2231, id: "ssh", auto_correct: true
     cfg.vm.network :forwarded_port, guest: 3389, host: 33831, id: "rdp", auto_correct: true
     cfg.vm.network :private_network, ip: "192.168.38.31", gateway: "192.168.38.1"
 
-    cfg.vm.provision "shell", path: "scripts/create-domain-2008r2.ps1", privileged: false
+    cfg.vm.provision "shell", path: "scripts/provision.ps1", privileged: false
     cfg.vm.provision :reload
   end
 
-  #Replica
-  config.vm.define "repl" do |cfg|
-    cfg.winrm.transport = :plaintext
-    cfg.winrm.basic_auth_only = true
-    cfg.vm.communicator = "winrm"
-
+  #Child controller
+  config.vm.define "child" do |cfg|
     cfg.vm.box = basebox
     cfg.vm.hostname = basename + "-dc3ch"
 
@@ -72,15 +65,17 @@ Vagrant.configure("2") do |config|
       vb.customize ["modifyvm", :id, "--memory", 1024]
       vb.customize ["modifyvm", :id, "--cpus", 1]
       vb.customize ["modifyvm", :id, "--vram", "32"]
+      vb.name = cfg.vm.hostname
     end
 
-    cfg.vm.network :forwarded_port, guest: 5985, host: 59832, id: "winrm", auto_correct: true
+    cfg.vm.network :forwarded_port, guest: 5985, host: 59532, id: "winrm", auto_correct: true
+    cfg.vm.network :forwarded_port, guest: 5986, host: 59632, id: "winrm", auto_correct: true
     cfg.vm.network :forwarded_port, guest: 22, host: 2232, id: "ssh", auto_correct: true
     cfg.vm.network :forwarded_port, guest: 3389, host: 33832, id: "rdp", auto_correct: true
     cfg.vm.network :private_network, ip: "192.168.38.32", gateway: "192.168.38.1", dns: "192.168.38.31"
 
     cfg.vm.provision "shell", path: "scripts/fix-dns.ps1", privileged: false, args: "192.168.38.31"
-    cfg.vm.provision "shell", path: "scripts/add-child-domain-2008r2.ps1", privileged: false
+    cfg.vm.provision "shell", path: "scripts/provision-child.ps1", privileged: false
     #cfg.vm.provision :reload
   end
 
