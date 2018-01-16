@@ -1,6 +1,15 @@
+# Start VM Windows Server 2008 r2 for AD DC Forest + Replica
+# (c) Georgy A Bystrenin gkot@altlinux.org 16 Janury 2018
+# Base BOX universalvishwa/windows-2008-r2-standard-x64
+###########
+# Install :
+# vagratn up dc - start First Domain Controller domain.alt
+# vagratn up repl - start Replica of Forest Controller domain.alt
+
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+#Check version Vagrant
 begin
         Vagrant.require_version ">= 2.0.1"
         COMPAT=""
@@ -10,30 +19,30 @@ rescue
         COMPAT="true"
 end
 
-#Fix deprecated option Issues #4349
-#Vagrant.require_plugin "vagrant-reload"
-
+#Add plugins reload
 REQUIRED_PLUGINS = %w(vagrant-reload)
+plugins_to_install = REQUIRED_PLUGINS.select { |plugin| not Vagrant.has_plugin? plugin }
+if not plugins_to_install.empty?
+  puts "Not installing plugins: #{plugins_to_install.join(' ')}"
+  if system "vagrant plugin install #{plugins_to_install.join(' ')}"
+    exec "vagrant #{ARGV.join(' ')}"
+  else
+    abort "Installation of one or more plugins has failed. Aborting."
+  end
+end
 
-#Windows Server 2008 r2 for AD DC Forest + Replica
-
+#Prefix to Basename VM
 basename = "win08r2s"
 
 #Base BOX
-#universalvishwa/windows-2008-r2-standard-x64
 basebox = "universalvishwa/windows-2008-r2-standard-x64"
 
 Vagrant.configure("2") do |config|
 
-  # use the plaintext WinRM transport and force it to use basic authentication.
-  # NB this is needed because the default negotiate transport stops working
-  #    after the domain controller is installed.
-  #    see https://groups.google.com/forum/#!topic/vagrant-up/sZantuCM0q4
-
-  #config.winrm.transport = :plaintext
-  #config.winrm.basic_auth_only = true
-
-  #config.vm.communicator = "winrm"
+  # All use the plaintext WinRM transport and force it to use basic authentication
+  config.winrm.transport = :plaintext
+  config.winrm.basic_auth_only = true
+  config.vm.communicator = "winrm"
 
   #AD DC Forest
   config.vm.define "dc" do |cfg|
@@ -51,13 +60,13 @@ Vagrant.configure("2") do |config|
       vb.name = cfg.vm.hostname
     end
 
-    cfg.vm.network :forwarded_port, guest: 5985, host: 59521, id: "winrm", auto_correct: true
-    cfg.vm.network :forwarded_port, guest: 5986, host: 59621, id: "winrm", auto_correct: true
+    cfg.vm.network :forwarded_port, guest: 5985, host: 9521, id: "winrm", auto_correct: true
+    #cfg.vm.network :forwarded_port, guest: 5986, host: 9621, auto_correct: true
     cfg.vm.network :forwarded_port, guest: 22, host: 2221, id: "ssh", auto_correct: true
-    cfg.vm.network :forwarded_port, guest: 3389, host: 33821, id: "rdp", auto_correct: true
+    cfg.vm.network :forwarded_port, guest: 3389, host: 3821, id: "rdp", auto_correct: true
     cfg.vm.network :private_network, ip: "192.168.38.21", gateway: "192.168.38.1"
 
-    cfg.vm.provision "shell", path: "scripts/provision.ps1", privileged: false
+    cfg.vm.provision "shell", path: "scripts/create-domain-2008r2.ps1", privileged: false
     cfg.vm.provision :reload
   end
 
@@ -77,15 +86,13 @@ Vagrant.configure("2") do |config|
       vb.name = cfg.vm.hostname
     end
 
-    cfg.vm.network :forwarded_port, guest: 5985, host: 59522, id: "winrm", auto_correct: true
-    cfg.vm.network :forwarded_port, guest: 5986, host: 59622, id: "winrm", auto_correct: true
+    cfg.vm.network :forwarded_port, guest: 5985, host: 9522, id: "winrm", auto_correct: true
+    #cfg.vm.network :forwarded_port, guest: 5986, host: 9622, auto_correct: true
     cfg.vm.network :forwarded_port, guest: 22, host: 2222, id: "ssh", auto_correct: true
-    cfg.vm.network :forwarded_port, guest: 3389, host: 33822, id: "rdp", auto_correct: true
+    cfg.vm.network :forwarded_port, guest: 3389, host: 3822, id: "rdp", auto_correct: true
     cfg.vm.network :private_network, ip: "192.168.38.22", gateway: "192.168.38.1", dns: "192.168.38.21"
 
     cfg.vm.provision "shell", path: "scripts/fix-dns.ps1", privileged: false, args: "192.168.38.21"
-    cfg.vm.provision "shell", path: "scripts/provision-repl.ps1", privileged: false
-    #cfg.vm.provision :reload
+    cfg.vm.provision "shell", path: "scripts/add-replica-domain-2008r2.ps1", privileged: false
   end
-
 end

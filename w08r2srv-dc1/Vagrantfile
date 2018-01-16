@@ -1,6 +1,14 @@
+# Start VM Windows Server 2008 r2 for AD DC Forest
+# (c) Georgy A Bystrenin gkot@altlinux.org 16 Janury 2018
+# Base BOX universalvishwa/windows-2008-r2-standard-x64
+###########
+# Install :
+# vagratn up - start Forest AD Controller domain.alt
+
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+#Check version Vagrant
 begin
         Vagrant.require_version ">= 2.0.1"
         COMPAT=""
@@ -10,43 +18,43 @@ rescue
         COMPAT="true"
 end
 
-#Box Windows Server 2008 r2 for AD DC Forest
-
-#Fix deprecated option Issues #4349
-#Vagrant.require_plugin "vagrant-reload"
-
+#Add plugins reload
 REQUIRED_PLUGINS = %w(vagrant-reload)
-
-#Base BOX
-#universalvishwa/windows-2008-r2-standard-x64
+plugins_to_install = REQUIRED_PLUGINS.select { |plugin| not Vagrant.has_plugin? plugin }
+if not plugins_to_install.empty?
+  puts "Not installing plugins: #{plugins_to_install.join(' ')}"
+  if system "vagrant plugin install #{plugins_to_install.join(' ')}"
+    exec "vagrant #{ARGV.join(' ')}"
+  else
+    abort "Installation of one or more plugins has failed. Aborting."
+  end
+end
 
 Vagrant.configure("2") do |config|
+  #Base BOX
   config.vm.box = "universalvishwa/windows-2008-r2-standard-x64"
-
+  #Basename
   config.vm.hostname = "win08r2srv-dc1"
 
   config.vm.provider "virtualbox" do |v|
-    v.memory = 1024
+    v.memory = 768
     v.cpus = 1
-    #v.name = config.vm.hostname
+    v.name = config.vm.hostname
   end
 
-    # use the plaintext WinRM transport and force it to use basic authentication.
-    # NB this is needed because the default negotiate transport stops working
-    #    after the domain controller is installed.
-    #    see https://groups.google.com/forum/#!topic/vagrant-up/sZantuCM0q4
-    config.winrm.transport = :plaintext
-    config.winrm.basic_auth_only = true
+  # Use the plaintext WinRM transport and force it to use basic authentication
+  config.winrm.transport = :plaintext
+  config.winrm.basic_auth_only = true
 
-    config.vm.communicator = "winrm"
+  config.vm.communicator = "winrm"
 
-    config.vm.network :forwarded_port, guest: 5985, host: 59852, id: "winrm", auto_correct: true
-    cfg.vm.network :forwarded_port, guest: 5986, host: 59862, id: "winrm", auto_correct: true
-    config.vm.network :forwarded_port, guest: 22, host: 222, id: "ssh", auto_correct: true
-    config.vm.network :forwarded_port, guest: 3389, host: 33892, id: "rdp", auto_correct: true
-    config.vm.network :private_network, ip: "192.168.38.2", gateway: "192.168.38.1"
+  config.vm.network :forwarded_port, guest: 5985, host: 59852, id: "winrm", auto_correct: true
+  #config.vm.network :forwarded_port, guest: 5986, host: 59862, id: "winrm", auto_correct: true
+  config.vm.network :forwarded_port, guest: 22, host: 2220, id: "ssh", auto_correct: true
+  config.vm.network :forwarded_port, guest: 3389, host: 33892, id: "rdp", auto_correct: true
 
-  config.vm.provision "shell", path: "scripts/provision.ps1", privileged: false
+  config.vm.network :private_network, ip: "192.168.38.2", gateway: "192.168.38.1"
+
+  config.vm.provision "shell", path: "scripts/create-domain-2008r2.ps1", privileged: false
   config.vm.provision :reload
-
 end
