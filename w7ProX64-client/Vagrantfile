@@ -1,0 +1,61 @@
+# Start VM Windows Server 2008 r2 for AD DC Forest
+# (c) Georgy A Bystrenin gkot@altlinux.org 16 Janury 2018
+# Base BOX universalvishwa/windows-2008-r2-standard-x64
+###########
+# Install :
+# vagratn up - start Forest AD Controller domain.alt
+
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#Check version Vagrant
+begin
+        Vagrant.require_version ">= 2.0.1"
+        COMPAT=""
+rescue
+        print("note: Current version of Vagrant is not support BOX with /etc/net.\n      Please, update Vagrant to version greater than 2.0.1\n")
+        Vagrant.require_version "<= 1.9.4"
+        COMPAT="true"
+end
+
+#Add plugins reload
+REQUIRED_PLUGINS = %w(vagrant-reload)
+plugins_to_install = REQUIRED_PLUGINS.select { |plugin| not Vagrant.has_plugin? plugin }
+if not plugins_to_install.empty?
+  puts "Not installing plugins: #{plugins_to_install.join(' ')}"
+  if system "vagrant plugin install #{plugins_to_install.join(' ')}"
+    exec "vagrant #{ARGV.join(' ')}"
+  else
+    abort "Installation of one or more plugins has failed. Aborting."
+  end
+end
+
+Vagrant.configure("2") do |config|
+  #Base BOX
+  config.vm.box = "universalvishwa/windows-7-professional-x64"
+  #Basename
+  config.vm.hostname = "w7Pro-client"
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 1536
+    v.cpus = 1
+    v.name = config.vm.hostname
+  end
+
+  # Use the plaintext WinRM transport and force it to use basic authentication
+  config.winrm.transport = :plaintext
+  config.winrm.basic_auth_only = true
+
+  config.vm.communicator = "winrm"
+
+  config.vm.network :forwarded_port, guest: 5985, host: 59852, id: "winrm", auto_correct: true
+  #config.vm.network :forwarded_port, guest: 5986, host: 59862, id: "winrm", auto_correct: true
+  config.vm.network :forwarded_port, guest: 22, host: 2220, id: "ssh", auto_correct: true
+  config.vm.network :forwarded_port, guest: 3389, host: 33892, id: "rdp", auto_correct: true
+
+  config.vm.network :private_network, ip: "192.168.56.251", gateway: "192.168.56.1"
+  cfg.vm.provision "shell", path: "scripts/fix-dns.ps1", privileged: false, args: "192.168.56.2"
+
+  config.vm.provision "shell", path: "scripts/create-domain-2008r2.ps1", privileged: false
+  config.vm.provision :reload
+end
