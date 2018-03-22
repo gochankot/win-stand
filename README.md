@@ -12,7 +12,7 @@ Windows server + client stand based on Vagrant with Virtualbox provider
  
 Based BOX List:
   * universalvishwa/windows-2008-r2-standard-x64
-  * 
+  * universalvishwa/windows-7-professional-x64
 
 DIR List:
    <DIR_NAME> | Description
@@ -25,7 +25,8 @@ DIR List:
      VM <NAME> = Description
             dc = start Domain Controller domain.alt
           repl = start Domain Controller subdomain child.domain.alt
-
+  * w7ProX64-client | Windows 7 x64 Cleint for the join AD test, as well as the RSAT Tools test
+ 
 ### Example: Create Domain Controller
 Create Forest AD Controller
 
@@ -46,6 +47,7 @@ Domain Controller should be started first and stopped last.
    vagrant halt <NAME>
 ``` 
 
+------
 ## TODO:
  * Fix w08r2srv-dc4_2Site
  * Fix join to AD Domain w7ProX64-client
